@@ -6,10 +6,15 @@ def convert_font(input_file, output_file):
     new_cmap = {}
 
     for char_code in cmap:
-        next_char = chr(ord(chr(char_code)) + 1)
-        new_cmap[char_code] = next_char.encode('utf-32BE')
+        next_char = chr(char_code + 1)
+        try:
+            glyph_id = font.getGlyphID(next_char)
+            new_cmap[char_code] = next_char
+        except KeyError:
+            pass  # Skip characters that do not have corresponding glyphs
 
-    font['cmap'].tables[0].cmap = new_cmap
+    # Update the cmap table with the new mapping
+    font['cmap'].tables[0].cmap.update(new_cmap)
     font.save(output_file)
 
 if __name__ == "__main__":
